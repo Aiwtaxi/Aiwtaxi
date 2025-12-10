@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AIWtaxi Driver Panel</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            text-align: center;
+        }
+
+        header {
+            background-color: #ffcc00;
+            padding: 20px;
+            font-size: 28px;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .box {
+            margin-top: 40px;
+        }
+
+        .balance {
+            font-size: 40px;
+            margin: 20px 0;
+            color: #ffcc00;
+        }
+
+        button {
+            background-color: #ffcc00;
+            border: none;
+            padding: 15px 25px;
+            font-size: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        AIWtaxi – მძღოლის პანელი
+    </header>
+
+    <div class="box">
+        <h2>მოგესალმებით, მძღოლო!</h2>
+
+        <p>თქვენი არსებული ბალანსი:</p>
+
+        <div class="balance" id="balance">
+            0 ₾
+        </div>
+
+        <button onclick="withdraw()">ფულის გამოტანა</button>
+    </div>
+
+    <script>
+        // შემდგომში აქ დაემატება API, რომელიც იანდექსიდან ბალანსს ამოიღებს
+        function withdraw() {
+            alert("ფულის გამოტანის ფუნქცია მალე დაემატება!");
+        }
+    </script>
+
+</body>
+</html>
