@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AIWtaxi – ავტორიზაცია</title>
+
+    <style>
+        body {
+            margin: 0;
+            background-color: #000;
+            font-family: Arial, sans-serif;
+            color: #fff;
+            text-align: center;
+        }
+
+        h1 {
+            color: #ffcc00;
+            margin-top: 40px;
+        }
+
+        .box {
+            margin-top: 50px;
+        }
+
+        input {
+            width: 80%;
+            padding: 15px;
+            font-size: 18px;
+            border-radius: 10px;
+            border: none;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        button {
+            width: 85%;
+            padding: 15px;
+            font-size: 20px;
+            background-color: #ffcc00;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>AIWtaxi ავტორიზაცია</h1>
+
+    <div class="box">
+        <input type="text" id="phone" placeholder="შეიყვანე ტელეფონის ნომერი">
+        <button onclick="sendSMS()">შემდეგ</button>
+    </div>
+
+    <script>
+        function sendSMS() {
+            let phone = document.getElementById("phone").value;
+
+            if (phone.length < 9) {
+                alert("ნომერი არასწორია!");
+                return;
+            }
+
+            // აქ შემდეგში დაემატება სმს კოდი
+            window.location.href = "dashboard.html"; 
+        }
+    </script>
+</body>
+</html>
