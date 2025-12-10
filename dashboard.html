@@ -1,230 +1,80 @@
-<!DOCTYPE html>
-<html lang="ka">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIWtaxi – მძღოლის კაბინეტი</title>
+<!-- გადარიცხვის ფანჯარა -->
+<div id="popup" style="
+    display:none; 
+    position: fixed; 
+    top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.7);
+    padding-top: 120px;
+    text-align:center;
+">
+    <div style="
+        background:white;
+        width:85%;
+        margin:auto;
+        padding:25px;
+        border-radius:15px;
+        text-align:center;
+    ">
+        <h3>გადარიცხვა</h3>
 
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #000;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
+        <!-- თანხა -->
+        <input id="amount" type="number" placeholder="თანხა" 
+            style="width:90%; padding:12px; margin:10px; font-size:18px; border-radius:10px; border:1px solid #ccc;">
 
-        header {
-            background-color: #ffcc00;
-            color: #000;
-            padding: 20px;
-            font-size: 28px;
-            font-weight: bold;
-        }
+        <!-- საკომისიო -->
+        <input id="fee" type="text" value="0.50 ₾ (საკომისიო)" disabled
+            style="width:90%; padding:12px; margin:10px; font-size:18px; border-radius:10px; border:1px solid #ccc; background:#f3f3f3">
 
-        .container {
-            padding: 30px 20px;
-        }
+        <!-- საბოლოო თანხა -->
+        <input id="total" type="text" placeholder="სულ გადასახდელი" disabled
+            style="width:90%; padding:12px; margin:10px; font-size:18px; border-radius:10px; border:1px solid #ccc; background:#f3f3f3">
 
-        .driver-name {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
+        <!-- IBAN -->
+        <input id="iban" type="text" placeholder="თქვენი IBAN" 
+            style="width:90%; padding:12px; margin:10px; font-size:18px; border-radius:10px; border:1px solid #ccc;">
 
-        .driver-phone {
-            font-size: 18px;
-            opacity: 0.8;
-            margin-bottom: 30px;
-        }
+        <button onclick="confirmTransfer()" style="
+            width:90%; padding:15px; margin-top:10px;
+            background:#4da3ff; color:white; font-size:20px;
+            border-radius:10px; border:none; font-weight:bold;">
+            დადასტურება
+        </button>
 
-        .balance-label {
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
-
-        .balance-value {
-            font-size: 40px;
-            color: #ffcc00;
-            margin-bottom: 30px;
-        }
-
-        /* მრგვალი ღია ლურჯი ღილაკი */
-        .withdraw-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            border: none;
-            background-color: #4DA6FF; /* ღია ლურჯი */
-            color: #000;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .withdraw-btn:active {
-            transform: scale(0.97);
-        }
-
-        footer {
-            margin-top: 40px;
-            padding: 20px;
-            font-size: 12px;
-            color: #aaa;
-        }
-
-        /* გამოტანის ფანჯარა (popup) */
-        .modal-backdrop {
-            display: none; /* default – დამალული */
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.7);
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal {
-            background: #111;
-            border-radius: 16px;
-            padding: 20px;
-            width: 90%;
-            max-width: 400px;
-            text-align: left;
-        }
-
-        .modal h2 {
-            margin-top: 0;
-            color: #ffcc00;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .modal label {
-            font-size: 14px;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .modal input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            border: none;
-            font-size: 16px;
-        }
-
-        .modal-buttons {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .btn-confirm {
-            flex: 1;
-            padding: 10px;
-            border-radius: 8px;
-            border: none;
-            background-color: #4DA6FF;
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .btn-cancel {
-            flex: 1;
-            padding: 10px;
-            border-radius: 8px;
-            border: none;
-            background-color: #555;
-            color: #fff;
-            font-size: 16px;
-        }
-    </style>
-</head>
-<body>
-
-<header>AIWtaxi – მძღოლის კაბინეტი</header>
-
-<div class="container">
-    <div class="driver-name" id="driverName">მძღოლის სახელი გვარი</div>
-    <div class="driver-phone" id="driverPhone">ტელეფონი: +995 5XX XX XX XX</div>
-
-    <div class="balance-label">თქვენი ბალანსი:</div>
-    <div class="balance-value" id="driverBalance">0 ₾</div>
-
-    <button class="withdraw-btn" onclick="openWithdrawModal()">
-        გადარიცხვა
-    </button>
-</div>
-
-<footer>
-    © 2025 AIWtaxi – ყველა უფლება დაცულია
-</footer>
-
-<!-- გამოტანის (გადარიცხვის) popup -->
-<div class="modal-backdrop" id="withdrawModal">
-    <div class="modal">
-        <h2>გადარიცხვა</h2>
-
-        <label for="amount">თანხა (₾)</label>
-        <input type="number" id="amount" placeholder="მაგ: 150">
-
-        <label for="iban">ანგარიშის ნომერი (IBAN)</label>
-        <input type="text" id="iban" placeholder="მაგ: GE12TB...">
-
-        <div class="modal-buttons">
-            <button class="btn-cancel" onclick="closeWithdrawModal()">გაუქმება</button>
-            <button class="btn-confirm" onclick="submitWithdraw()">დადასტურება</button>
-        </div>
+        <button onclick="closePopup()" style="
+            width:90%; padding:12px; margin-top:10px;
+            background:#aaa; color:black; font-size:18px;
+            border-radius:10px; border:none;">
+            დახურვა
+        </button>
     </div>
 </div>
 
 <script>
-    // TODO: აქ მერე ჩაებმება ნამდვილი API (Yandex + ბანკი)
-    // ახლა უბრალოდ ადგილმჭერებიაო:
-    document.addEventListener("DOMContentLoaded", function() {
-        // თეორიულად აქ localStorage-დან ან backend-დან წამოვა
-        const name = localStorage.getItem("driverName") || "მძღოლის სახელი გვარი";
-        const phone = localStorage.getItem("driverPhone") || "+995 5XX XX XX XX";
-        const balance = localStorage.getItem("driverBalance") || "0";
+function openPopup() {
+    document.getElementById("popup").style.display = "block";
+}
 
-        document.getElementById("driverName").innerText = name;
-        document.getElementById("driverPhone").innerText = "ტელეფონი: " + phone;
-        document.getElementById("driverBalance").innerText = balance + " ₾";
-    });
+function closePopup() {
+    document.getElementById("popup").style.display = "none";
+}
 
-    function openWithdrawModal() {
-        document.getElementById("withdrawModal").style.display = "flex";
+// თანხის + საკომისიოს ავტომატური დათვლა
+document.getElementById("amount").addEventListener("input", function () {
+    let amount = parseFloat(this.value) || 0;
+    let total = amount + 0.50;
+    document.getElementById("total").value = total.toFixed(2) + " ₾";
+});
+
+function confirmTransfer() {
+    let amount = document.getElementById("amount").value;
+    let iban = document.getElementById("iban").value;
+
+    if (amount === "" || iban === "") {
+        alert("გთხოვ შეავსო ყველა ველი");
+        return;
     }
 
-    function closeWithdrawModal() {
-        document.getElementById("withdrawModal").style.display = "none";
-    }
-
-    function submitWithdraw() {
-        const amount = document.getElementById("amount").value.trim();
-        const iban = document.getElementById("iban").value.trim();
-
-        if (!amount || Number(amount) <= 0) {
-            alert("გთხოვ ჩაწერო თანხა.");
-            return;
-        }
-
-        if (!iban || !iban.startsWith("GE")) {
-            alert("გთხოვ ჩაწერო სწორი IBAN (GE-ით დაწყებული).");
-            return;
-        }
-
-        // აქ ნამდვილი ვერსიაში გაეგზავნება შენი backend-ს:
-        // fetch('/api/withdraw', {method:'POST', body: JSON.stringify({amount, iban, phone: ...}) ...})
-
-        alert("გადარიცხვის მოთხოვნა გაგზავნილია (ჯერ დემო ვარიანტია).");
-        closeWithdrawModal();
-    }
+    alert("გადარიცხვის მოთხოვნა გაგზავნილია!\nჯამი: " + document.getElementById("total").value);
+    closePopup();
+}
 </script>
-
-</body>
-</html>
