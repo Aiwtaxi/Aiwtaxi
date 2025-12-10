@@ -1,71 +1,70 @@
 <!DOCTYPE html>
 <html lang="ka">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AIWtaxi – ავტორიზაცია</title>
-
-    <style>
-        body {
-            margin: 0;
-            background-color: #000;
-            font-family: Arial, sans-serif;
-            color: #fff;
-            text-align: center;
-        }
-
-        h1 {
-            color: #ffcc00;
-            margin-top: 40px;
-        }
-
-        .box {
-            margin-top: 50px;
-        }
-
-        input {
-            width: 80%;
-            padding: 15px;
-            font-size: 18px;
-            border-radius: 10px;
-            border: none;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        button {
-            width: 85%;
-            padding: 15px;
-            font-size: 20px;
-            background-color: #ffcc00;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIWtaxi - შესვლა</title>
+<style>
+    body {
+        background: #000;
+        color: white;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding-top: 70px;
+    }
+    .title {
+        color: #FFD000;
+        font-size: 32px;
+        margin-bottom: 30px;
+        font-weight: bold;
+    }
+    input {
+        width: 80%;
+        padding: 12px;
+        margin: 10px 0;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+    }
+    button {
+        width: 85%;
+        padding: 14px;
+        background: #FFD000;
+        border: none;
+        border-radius: 6px;
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 20px;
+    }
+</style>
 </head>
 
 <body>
-    <h1>AIWtaxi ავტორიზაცია</h1>
+    <div class="title">AIWtaxi მძღოლი</div>
 
-    <div class="box">
-        <input type="text" id="phone" placeholder="შეიყვანე ტელეფონის ნომერი">
-        <button onclick="sendSMS()">შემდეგ</button>
-    </div>
+    <input id="phone" type="text" placeholder="ტელეფონის ნომერი">
+    <input id="password" type="password" placeholder="პაროლი">
+
+    <button onclick="login()">შესვლა</button>
 
     <script>
-        function sendSMS() {
-            let phone = document.getElementById("phone").value;
+        function login() {
+            let phone = document.getElementById('phone').value.trim();
+            let pass = document.getElementById('password').value.trim();
 
-            if (phone.length < 9) {
-                alert("ნომერი არასწორია!");
+            if(phone === "" || pass === "") {
+                alert("გთხოვთ შეავსოთ ყველა ველი");
                 return;
             }
 
-            // აქ შემდეგში დაემატება სმს კოდი
-            window.location.href = "dashboard.html"; 
+            // დროებითი იუზერი (ნამდვილი ბაზა შემდეგ დაემატება)
+            if(phone === "555123456" && pass === "1234") {
+                window.location.href = "dashboard.html";
+            } else {
+                alert("არასწორი მონაცემები");
+            }
         }
     </script>
+
 </body>
 </html>
