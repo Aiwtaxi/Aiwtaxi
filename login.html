@@ -2,69 +2,68 @@
 <html lang="ka">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AIWtaxi - შესვლა</title>
+<title>AIWtaxi მძღოლი</title>
 <style>
     body {
-        background: #000;
+        background: black;
         color: white;
         font-family: Arial, sans-serif;
         text-align: center;
-        padding-top: 70px;
+        padding: 40px;
     }
-    .title {
-        color: #FFD000;
+
+    h1 {
+        color: #ffcc00;
         font-size: 32px;
-        margin-bottom: 30px;
-        font-weight: bold;
+        margin-bottom: 40px;
     }
+
     input {
         width: 80%;
-        padding: 12px;
-        margin: 10px 0;
+        padding: 15px;
+        border-radius: 10px;
         border: none;
-        border-radius: 6px;
-        font-size: 16px;
-    }
-    button {
-        width: 85%;
-        padding: 14px;
-        background: #FFD000;
-        border: none;
-        border-radius: 6px;
+        margin-bottom: 20px;
         font-size: 18px;
+    }
+
+    button {
+        width: 84%;
+        padding: 15px;
+        background: #ffcc00;
+        color: black;
+        font-size: 22px;
+        border: none;
+        border-radius: 10px;
         font-weight: bold;
-        margin-top: 20px;
+        margin-top: 10px;
     }
 </style>
 </head>
 
 <body>
-    <div class="title">AIWtaxi მძღოლი</div>
 
-    <input id="phone" type="text" placeholder="ტელეფონის ნომერი">
-    <input id="password" type="password" placeholder="პაროლი">
+<h1>AIWtaxi მძღოლი</h1>
 
-    <button onclick="login()">შესვლა</button>
+<input type="text" id="phone" placeholder="ტელეფონის ნომერი">
+<input type="password" id="password" placeholder="პაროლი">
 
-    <script>
-        function login() {
-            let phone = document.getElementById('phone').value.trim();
-            let pass = document.getElementById('password').value.trim();
+<button onclick="login()">შესვლა</button>
 
-            if(phone === "" || pass === "") {
-                alert("გთხოვთ შეავსოთ ყველა ველი");
-                return;
-            }
+<script>
+function login() {
+    let phone = document.getElementById("phone").value;
+    let pass = document.getElementById("password").value;
 
-            // დროებითი იუზერი (ნამდვილი ბაზა შემდეგ დაემატება)
-            if(phone === "555123456" && pass === "1234") {
-                window.location.href = "dashboard.html";
-            } else {
-                alert("არასწორი მონაცემები");
-            }
-        }
-    </script>
+    if (phone === "" || pass === "") {
+        alert("გთხოვ შეავსო ორივე ველი");
+        return;
+    }
+
+    // ❗ ახლა დროებით ყველას უშვებს dashboard-ზე
+    window.location.href = "dashboard.html";
+}
+</script>
 
 </body>
 </html>
