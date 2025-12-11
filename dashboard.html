@@ -1,15 +1,141 @@
-const phone = localStorage.getItem("driverPhone");
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<title>AIWtaxi – მძღოლის კაბინეტი</title>
+
+<style>
+    body {
+        background: black;
+        color: white;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 25px;
+    }
+    h1 {
+        color: #FFD000;
+        font-size: 30px;
+        margin-bottom: 30px;
+    }
+    .balance {
+        font-size: 55px;
+        color: #FFD000;
+        margin-top: 10px;
+        margin-bottom: 25px;
+    }
+    button {
+        background: #5AB0FF;
+        border: none;
+        padding: 18px 40px;
+        border-radius: 100px;
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        color: white;
+        margin-top: 25px;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>AIWtaxi – მძღოლის კაბინეტი</h1>
+
+<h2>თქვენი ტელეფონი:</h2>
+<div id="driverPhone" style="font-size:22px; margin-bottom:20px;"></div>
+
+<h2>თქვენი ბალანსი:</h2>
+<div id="balance" class="balance">იტვირთება…</div>
+
+<button onclick="alert('გადარიცხვის ფანჯარა მზადდება')">
+    გადარიცხვა
+</button>
+
+<script>
+
+// აქ ჩასვამ შენს მიერ მიღებულ დახვეწილ გასაღებებს:
+const API_KEY = "tlQGatuaTrXFLehrGJOxzcbumRtmyNaKjdvH";
+const PARK_ID = "taxi/park/3570960d7c3f4a4eb189bed587fc54d7";
+
+const phone = localStorage.getItem("driver_phone");
 document.getElementById("driverPhone").innerText = phone;
 
-fetch(`/api/getBalance?phone=${phone}`)
-  .then(r => r.json())
-  .then(d => {
-    if (d.balance !== undefined) {
-      document.getElementById("balance").innerText = d.balance + " ₾";
-    } else {
-      document.getElementById("balance").innerText = "0 ₾";
+
+// 🔥 1) მძღოლის ძებნა ტელეფონის მიხედვით
+async function getDriverId() {
+    const url = `https://fleet-api.taxi.yandex.net/v1/parks/driver-profiles/list`;
+
+    const body = {
+        query: {
+            park: { id: PARK_ID.replace("taxi/park/", "") },
+            text: phone
+        },
+        limit: 1
+    };
+
+    const res = await fetch(url, {
+        method: "POST",
+        headers: {
+            "X-Client-ID": PARK_ID,
+            "X-API-Key": API_KEY,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+    });
+
+    const data = await res.json();
+
+    if (!data.driver_profiles || data.driver_profiles.length === 0) {
+        document.getElementById("balance").innerText = "მძღოლი ვერ მოიძებნა";
+        throw "Driver not found";
     }
-  })
-  .catch(() => {
-    document.getElementById("balance").innerText = "0 ₾";
-  });
+
+    return data.driver_profiles[0].driver_profile.id;
+}
+
+
+// 🔥 2) მძღოლის ბალანსის ამოღება
+async function getDriverBalance(driverId) {
+    const url = `https://fleet-api.taxi.yandex.net/v2/parks/driver-profiles/balances/list`;
+
+    const body = {
+        query: {
+            park: { id: PARK_ID.replace("taxi/park/", "") },
+            driver_profile: { id: [driverId] }
+        }
+    };
+
+    const res = await fetch(url, {
+        method: "POST",
+        headers: {
+            "X-Client-ID": PARK_ID,
+            "X-API-Key": API_KEY,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+    });
+
+    const data = await res.json();
+
+    const b = data.accounts[0].balance;
+    return b;
+}
+
+
+// 🚀 3) გაშვება
+(async () => {
+    try {
+        const driverId = await getDriverId();
+        const balance = await getDriverBalance(driverId);
+
+        document.getElementById("balance").innerText = balance + " ₾";
+
+    } catch (e) {
+        console.log(e);
+    }
+})();
+
+</script>
+
+</body>
+</html>
