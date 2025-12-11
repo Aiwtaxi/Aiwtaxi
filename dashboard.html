@@ -1,55 +1,117 @@
-<!-- გადარიცხვის ფანჯარა -->
-<div id="popup" style="
-    display:none; 
-    position: fixed; 
-    top:0; left:0; width:100%; height:100%;
-    background: rgba(0,0,0,0.7);
-    padding-top: 120px;
-    text-align:center;
-">
-    <div style="
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIWtaxi – მძღოლის კაბინეტი</title>
+
+<style>
+    body {
+        background:black;
+        color:white;
+        text-align:center;
+        font-family:Arial;
+        padding-top:40px;
+    }
+
+    .balance {
+        font-size:40px;
+        color:gold;
+        margin-top:10px;
+    }
+
+    .pay-btn {
+        margin-top:40px;
+        background:#55a8ff;
+        width:220px;
+        height:220px;
+        border-radius:50%;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        font-size:26px;
+        border:none;
+        cursor:pointer;
+    }
+
+    /* Popup სქრინი */
+    #popup {
+        display:none;
+        position:fixed;
+        top:0; left:0;
+        width:100%; height:100%;
+        background:rgba(0,0,0,0.7);
+        padding-top:120px;
+    }
+    #popupBox {
         background:white;
         width:85%;
         margin:auto;
         padding:25px;
         border-radius:15px;
+        color:black;
         text-align:center;
-    ">
+    }
+
+    input {
+        width:80%;
+        padding:12px;
+        margin:10px;
+        border-radius:8px;
+        border:1px solid gray;
+        font-size:18px;
+    }
+
+    .close {
+        margin-top:20px;
+        padding:12px;
+        width:80%;
+        background:red;
+        border:none;
+        color:white;
+        border-radius:8px;
+    }
+</style>
+
+</head>
+
+<body>
+
+<h2 style="color:gold;">AIWtaxi – მძღოლის კაბინეტი</h2>
+
+<h3>თქვენი ტელეფონი:</h3>
+<p id="driverPhone" style="font-size:22px; color:white;"></p>
+
+<h3>თქვენი ბალანსი:</h3>
+<div class="balance" id="balance">0 ₾</div>
+
+<button class="pay-btn" onclick="openPopup()">გადარიცხვა</button>
+
+<!-- POPUP -->
+<div id="popup">
+    <div id="popupBox">
         <h3>გადარიცხვა</h3>
 
-        <!-- თანხა -->
-        <input id="amount" type="number" placeholder="თანხა" 
-            style="width:90%; padding:12px; margin:10px; font-size:18px; border-radius:10px; border:1px solid #ccc;">
+        <input type="number" id="amount" placeholder="თანხა ₾">
+        <input type="text" id="desc" placeholder="დანიშნულება (არასავალდებულო)">
 
-        <!-- საკომისიო -->
-        <input id="fee" type="text" value="0.50 ₾ (საკომისიო)" disabled
-            style="width:90%; padding:12px; margin:10px; font-size:18px; border-radius:10px; border:1px solid #ccc; background:#f3f3f3">
-
-        <!-- საბოლოო თანხა -->
-        <input id="total" type="text" placeholder="სულ გადასახდელი" disabled
-            style="width:90%; padding:12px; margin:10px; font-size:18px; border-radius:10px; border:1px solid #ccc; background:#f3f3f3">
-
-        <!-- IBAN -->
-        <input id="iban" type="text" placeholder="თქვენი IBAN" 
-            style="width:90%; padding:12px; margin:10px; font-size:18px; border-radius:10px; border:1px solid #ccc;">
-
-        <button onclick="confirmTransfer()" style="
-            width:90%; padding:15px; margin-top:10px;
-            background:#4da3ff; color:white; font-size:20px;
-            border-radius:10px; border:none; font-weight:bold;">
-            დადასტურება
+        <button class="pay-btn" style="width:150px; height:150px; font-size:22px;" onclick="sendMoney()">
+            გადარიცხვა
         </button>
 
-        <button onclick="closePopup()" style="
-            width:90%; padding:12px; margin-top:10px;
-            background:#aaa; color:black; font-size:18px;
-            border-radius:10px; border:none;">
-            დახურვა
-        </button>
+        <button class="close" onclick="closePopup()">დახურვა</button>
     </div>
 </div>
 
 <script>
+// ამოაქვს ტელეფონის ნომერი URL-დან
+const urlParams = new URLSearchParams(window.location.search);
+const phone = urlParams.get("phone");
+
+// ვაჩვენებთ ნომერს
+document.getElementById("driverPhone").innerText = phone;
+
+// POPUP ფუნქციები
 function openPopup() {
     document.getElementById("popup").style.display = "block";
 }
@@ -58,23 +120,19 @@ function closePopup() {
     document.getElementById("popup").style.display = "none";
 }
 
-// თანხის + საკომისიოს ავტომატური დათვლა
-document.getElementById("amount").addEventListener("input", function () {
-    let amount = parseFloat(this.value) || 0;
-    let total = amount + 0.50;
-    document.getElementById("total").value = total.toFixed(2) + " ₾";
-});
-
-function confirmTransfer() {
+// "გადარიცხვა"
+function sendMoney() {
     let amount = document.getElementById("amount").value;
-    let iban = document.getElementById("iban").value;
 
-    if (amount === "" || iban === "") {
-        alert("გთხოვ შეავსო ყველა ველი");
+    if (amount === "" || amount <= 0) {
+        alert("გთხოვ შეიყვანო თანხა");
         return;
     }
 
-    alert("გადარიცხვის მოთხოვნა გაგზავნილია!\nჯამი: " + document.getElementById("total").value);
+    alert("ქველით ჯერ სატესტო ვარიანტია. თანხა: " + amount + " ₾");
     closePopup();
 }
 </script>
+
+</body>
+</html>
