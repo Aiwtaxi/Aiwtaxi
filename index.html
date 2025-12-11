@@ -1,71 +1,62 @@
 <!DOCTYPE html>
 <html lang="ka">
 <head>
-<meta charset="UTF-8">
-<title>AIWtaxi მძღოლი</title>
-<style>
-    body {
-        background: black;
-        color: white;
-        font-family: Arial, sans-serif;
-        text-align: center;
-        padding: 40px;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIWtaxi მძღოლი</title>
 
-    h1 {
-        color: #ffcc00;
-        font-size: 32px;
-        margin-bottom: 40px;
-    }
-
-    input {
-        width: 80%;
-        padding: 15px;
-        border-radius: 10px;
-        border: none;
-        margin-bottom: 20px;
-        font-size: 18px;
-    }
-
-    button {
-        width: 84%;
-        padding: 15px;
-        background: #ffcc00;
-        color: black;
-        font-size: 22px;
-        border: none;
-        border-radius: 10px;
-        font-weight: bold;
-        margin-top: 10px;
-        cursor: pointer;
-    }
-</style>
+    <style>
+        body {
+            background:black;
+            font-family:Arial, sans-serif;
+            text-align:center;
+            margin-top:120px;
+            color:white;
+        }
+        input {
+            width:80%;
+            padding:15px;
+            margin:10px;
+            border:none;
+            border-radius:8px;
+            font-size:18px;
+        }
+        button {
+            width:80%;
+            padding:15px;
+            margin-top:20px;
+            background:gold;
+            border:none;
+            border-radius:8px;
+            font-size:20px;
+            font-weight:bold;
+        }
+    </style>
 </head>
 
 <body>
 
-<h1>AIWtaxi მძღოლი</h1>
+    <h2 style="color:gold;">AIWtaxi მძღოლი</h2>
 
-<!-- ტელეფონის და პაროლის ველები -->
-<input type="text" id="phone" placeholder="ტელეფონის ნომერი">
-<input type="password" id="password" placeholder="პაროლი">
+    <input id="phone" type="text" placeholder="ტელეფონის ნომერი">
+    <input id="password" type="password" placeholder="პაროლი">
 
-<button onclick="login()">შესვლა</button>
+    <button onclick="login()">შესვლა</button>
 
-<script>
-function login() {
-    let phone = document.getElementById("phone").value;
-    let pass = document.getElementById("password").value;
+    <script>
+        function login() {
+            let phone = document.getElementById("phone").value;
+            let pass = document.getElementById("password").value;
 
-    if (phone === "" || pass === "") {
-        alert("გთხოვ შეავსო ორივე ველი");
-        return;
-    }
+            if (phone === "" || pass === "") {
+                alert("გთხოვ შეიყვანო ნომერი და პაროლი");
+                return;
+            }
 
-    // დროებით dashboard-ზე გადადის
-    window.location.href = "dashboard.html";
-}
-</script>
+            // გადამისამართება მძღოლის კაბინეტში
+            window.location.href = "dashboard.html?phone=" + encodeURIComponent(phone);
+        }
+    </script>
 
 </body>
 </html>
