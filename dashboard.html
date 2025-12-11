@@ -9,8 +9,8 @@
     body {
         background:black;
         color:white;
+        font-family:Arial, sans-serif;
         text-align:center;
-        font-family:Arial;
         padding-top:40px;
     }
 
@@ -34,7 +34,7 @@
         cursor:pointer;
     }
 
-    /* Popup სქრინი */
+    /* Popup */
     #popup {
         display:none;
         position:fixed;
@@ -43,6 +43,7 @@
         background:rgba(0,0,0,0.7);
         padding-top:120px;
     }
+
     #popupBox {
         background:white;
         width:85%;
@@ -54,9 +55,9 @@
     }
 
     input {
-        width:80%;
+        width:85%;
         padding:12px;
-        margin:10px;
+        margin:8px 0;
         border-radius:8px;
         border:1px solid gray;
         font-size:18px;
@@ -65,12 +66,27 @@
     .close {
         margin-top:20px;
         padding:12px;
-        width:80%;
+        width:85%;
         background:red;
         border:none;
         color:white;
         border-radius:8px;
+        font-size:18px;
+        cursor:pointer;
     }
+
+    .confirm {
+        background:#55a8ff;
+        color:white;
+        border:none;
+        padding:12px;
+        width:85%;
+        border-radius:8px;
+        font-size:20px;
+        font-weight:bold;
+        cursor:pointer;
+    }
+
 </style>
 
 </head>
@@ -79,10 +95,10 @@
 
 <h2 style="color:gold;">AIWtaxi – მძღოლის კაბინეტი</h2>
 
-<h3>თქვენი ტელეფონი:</h3>
-<p id="driverPhone" style="font-size:22px; color:white;"></p>
+<h3>ტელეფონი:</h3>
+<p id="driverPhone" style="font-size:22px;"></p>
 
-<h3>თქვენი ბალანსი:</h3>
+<h3>ბალანსი:</h3>
 <div class="balance" id="balance">0 ₾</div>
 
 <button class="pay-btn" onclick="openPopup()">გადარიცხვა</button>
@@ -90,46 +106,74 @@
 <!-- POPUP -->
 <div id="popup">
     <div id="popupBox">
-        <h3>გადარიცხვა</h3>
 
-        <input type="number" id="amount" placeholder="თანხა ₾">
-        <input type="text" id="desc" placeholder="დანიშნულება (არასავალდებულო)">
+        <h2 style="margin-bottom:10px;">გადარიცხვა</h2>
 
-        <button class="pay-btn" style="width:150px; height:150px; font-size:22px;" onclick="sendMoney()">
-            გადარიცხვა
-        </button>
+        <input type="text" id="iban" placeholder="ანგარიშის ნომერი (IBAN)">
+        <input type="text" id="fullname" placeholder="სახელი და გვარი">
+        <input type="number" id="amount" placeholder="თანხა (₾)" oninput="calc()">
+
+        <p style="font-size:18px; margin-top:5px;">
+            საკომისიო: <b>0.50 ₾</b>
+        </p>
+
+        <p style="font-size:20px;">
+            ჩასარიცხი თანხა: <b id="finalAmount">0 ₾</b>
+        </p>
+
+        <button class="confirm" onclick="sendMoney()">დადასტურება</button>
 
         <button class="close" onclick="closePopup()">დახურვა</button>
     </div>
 </div>
 
 <script>
-// ამოაქვს ტელეფონის ნომერი URL-დან
+// URL-დან ამოაქვს ტელეფონის ნომერი
 const urlParams = new URLSearchParams(window.location.search);
 const phone = urlParams.get("phone");
-
-// ვაჩვენებთ ნომერს
 document.getElementById("driverPhone").innerText = phone;
 
-// POPUP ფუნქციები
+// Popup-ის გახსნა
 function openPopup() {
     document.getElementById("popup").style.display = "block";
 }
 
+// Popup-ის დახურვა
 function closePopup() {
     document.getElementById("popup").style.display = "none";
 }
 
-// "გადარიცხვა"
+// საკომისიოს გამოთვლა
+function calc() {
+    let amount = parseFloat(document.getElementById("amount").value);
+    if (isNaN(amount) || amount <= 0) {
+        document.getElementById("finalAmount").innerText = "0 ₾";
+        return;
+    }
+    let finalAmount = amount - 0.50;
+    if (finalAmount < 0) finalAmount = 0;
+    document.getElementById("finalAmount").innerText = finalAmount.toFixed(2) + " ₾";
+}
+
+// დროებითი გადარიცხვა
 function sendMoney() {
+    let iban = document.getElementById("iban").value;
+    let name = document.getElementById("fullname").value;
     let amount = document.getElementById("amount").value;
 
-    if (amount === "" || amount <= 0) {
-        alert("გთხოვ შეიყვანო თანხა");
+    if (iban === "" || name === "" || amount === "") {
+        alert("გთხოვ შეავსო ყველა ველი");
         return;
     }
 
-    alert("ქველით ჯერ სატესტო ვარიანტია. თანხა: " + amount + " ₾");
+    alert(
+        "გადარიცხვა შესრულდა!\n" +
+        "მიმღები: " + name + "\n" +
+        "IBAN: " + iban + "\n" +
+        "თანხა: " + amount + " ₾\n" +
+        "დარიცხვა რეალურად ჩავრთავთ API-ზე მიერთებისას."
+    );
+
     closePopup();
 }
 </script>
