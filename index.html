@@ -1,83 +1,71 @@
 <!DOCTYPE html>
 <html lang="ka">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIWtaxi</title>
+<meta charset="UTF-8">
+<title>AIWtaxi მძღოლი</title>
+<style>
+    body {
+        background: black;
+        color: white;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 40px;
+    }
 
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #000;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
+    h1 {
+        color: #ffcc00;
+        font-size: 32px;
+        margin-bottom: 40px;
+    }
 
-        header {
-            background-color: #ffcc00;
-            color: #000;
-            padding: 20px;
-            font-size: 32px;
-            font-weight: bold;
-        }
+    input {
+        width: 80%;
+        padding: 15px;
+        border-radius: 10px;
+        border: none;
+        margin-bottom: 20px;
+        font-size: 18px;
+    }
 
-        section {
-            padding: 40px 20px;
-        }
-
-        h1 {
-            font-size: 26px;
-            margin-bottom: 10px;
-        }
-
-        p {
-            font-size: 18px;
-            margin-bottom: 30px;
-        }
-
-        .btn {
-            display: inline-block;
-            background-color: #ffcc00;
-            color: #000;
-            padding: 15px 30px;
-            border-radius: 8px;
-            font-size: 20px;
-            font-weight: bold;
-            text-decoration: none;
-        }
-
-        .btn:hover {
-            background-color: #e6b800;
-        }
-
-        footer {
-            margin-top: 50px;
-            padding: 20px;
-            border-top: 1px solid #444;
-            font-size: 14px;
-            color: #ccc;
-        }
-    </style>
+    button {
+        width: 84%;
+        padding: 15px;
+        background: #ffcc00;
+        color: black;
+        font-size: 22px;
+        border: none;
+        border-radius: 10px;
+        font-weight: bold;
+        margin-top: 10px;
+        cursor: pointer;
+    }
+</style>
 </head>
 
 <body>
 
-<header>
-    AIWtaxi
-</header>
+<h1>AIWtaxi მძღოლი</h1>
 
-<section>
-    <h1>AIWtaxi მძღოლების სისტემა</h1>
-    <p>გამარჯობა! აქ მძღოლი შეძლებს ბალანსის ნახვას და თანხის განაღდებას.</p>
+<!-- ტელეფონის და პაროლის ველები -->
+<input type="text" id="phone" placeholder="ტელეფონის ნომერი">
+<input type="password" id="password" placeholder="პაროლი">
 
-    <a href="#" class="btn">ავტორიზაცია მძღოლისთვის</a>
-</section>
+<button onclick="login()">შესვლა</button>
 
-<footer>
-    © 2025 AIWtaxi – ყველა უფლება დაცულია
-</footer>
+<script>
+function login() {
+    let phone = document.getElementById("phone").value;
+    let pass = document.getElementById("password").value;
+
+    if (phone === "" || pass === "") {
+        alert("გთხოვ შეავსო ორივე ველი");
+        return;
+    }
+
+    // დროებით dashboard-ზე გადადის
+    window.location.href = "dashboard.html";
+}
+</script>
 
 </body>
 </html>
