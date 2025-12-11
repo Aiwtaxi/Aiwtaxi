@@ -45,22 +45,24 @@
 
 <h1>AIWtaxi მძღოლი</h1>
 
-<input type="text" id="phone" placeholder="ტელეფონის ნომერი">
+<input type="text" id="phone" placeholder="ტელეფონის ნომერი (+995)">
 <input type="password" id="password" placeholder="პაროლი">
 
 <button onclick="login()">შესვლა</button>
 
 <script>
 function login() {
-    let phone = document.getElementById("phone").value;
-    let pass = document.getElementById("password").value;
+    let phone = document.getElementById("phone").value.trim();
+    let pass = document.getElementById("password").value.trim();
 
     if (phone === "" || pass === "") {
-        alert("გთხოვ შეავსო ორივე ველი");
+        alert("გთხოვ შეავსო ნომერი და პაროლი");
         return;
     }
 
-    // ❗ ახლა დროებით ყველას უშვებს dashboard-ზე
+    // ტელეფონის გადაცემა dashboard-ში
+    localStorage.setItem("driverPhone", phone);
+
     window.location.href = "dashboard.html";
 }
 </script>
