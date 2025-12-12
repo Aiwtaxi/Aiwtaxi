@@ -1,130 +1,200 @@
 <!DOCTYPE html>
 <html lang="ka">
 <head>
-<meta charset="UTF-8">
-<title>AIWtaxi Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AIWtaxi - მძღოლის კაბინეტი</title>
+  <style>
+    body{
+      margin:0;
+      font-family: Arial, sans-serif;
+      background:#000;
+      color:#fff;
+      text-align:center;
+      padding:20px;
+    }
+    h1{
+      color:#f5c400;
+      margin-top:10px;
+      font-size:22px;
+    }
+    .box{
+      max-width:520px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.06);
+      border-radius:16px;
+      padding:18px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.45);
+    }
+    input{
+      width:100%;
+      max-width:480px;
+      padding:14px 12px;
+      border-radius:10px;
+      border:none;
+      outline:none;
+      margin:10px 0;
+      font-size:16px;
+    }
+    .btn{
+      width:100%;
+      max-width:480px;
+      padding:14px 12px;
+      border:none;
+      border-radius:999px;
+      cursor:pointer;
+      font-size:18px;
+      font-weight:700;
+      margin:10px 0;
+    }
+    .btn-blue{ background:#64B5FF; color:#0b0b0b; }
+    .btn-yellow{ background:#f5c400; color:#0b0b0b; }
+    .btn-gray{ background:#2a2a2a; color:#fff; }
 
-<style>
-body {
-    margin: 0;
-    background: #000;
-    color: #fff;
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 30px;
-}
-
-h1 {
-    color: #ffcc00;
-}
-
-input {
-    width: 90%;
-    padding: 15px;
-    margin: 10px 0;
-    border-radius: 10px;
-    border: none;
-    font-size: 18px;
-}
-
-button {
-    width: 90%;
-    padding: 15px;
-    margin-top: 15px;
-    border-radius: 50px;
-    border: none;
-    font-size: 20px;
-    font-weight: bold;
-    background: #4da6ff;
-    color: #000;
-}
-
-.card {
-    margin-top: 30px;
-    padding: 20px;
-    border-radius: 15px;
-    background: #111;
-    display: none;
-}
-
-.balance {
-    font-size: 32px;
-    color: #ffcc00;
-}
-</style>
+    .card{
+      margin-top:14px;
+      padding:16px;
+      border-radius:16px;
+      background: rgba(255,255,255,0.07);
+      text-align:left;
+    }
+    .row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      margin:6px 0;
+      font-size:14px;
+      opacity:0.95;
+    }
+    .balance{
+      text-align:center;
+      font-size:32px;
+      color:#f5c400;
+      font-weight:800;
+      margin:14px 0 4px;
+    }
+    .small{
+      font-size:12px;
+      opacity:0.7;
+      margin-top:6px;
+    }
+    .fee{
+      font-size:13px;
+      opacity:0.85;
+      margin:6px 0 10px;
+    }
+  </style>
 </head>
-
 <body>
 
-<h1>AIWtaxi – მძღოლის კაბინეტი</h1>
+  <h1>AIWtaxi – მძღოლის კაბინეტი</h1>
 
-<input type="text" id="phone" placeholder="შეიყვანე ტელეფონის ნომერი">
-<button onclick="findDriver()">მოძებნა</button>
+  <div class="box">
 
-<div class="card" id="driverCard">
-    <p><b>სახელი:</b> <span id="name"></span></p>
-    <p><b>გვარი:</b> <span id="surname"></span></p>
-    <p><b>ტელეფონი:</b> <span id="phoneView"></span></p>
-    <p class="balance"><span id="balance"></span> ₾</p>
+    <!-- 1) ძებნის ბლოკი -->
+    <div id="searchBlock">
+      <input id="searchPhone" placeholder="შეიყვანე ტელეფონის ნომერი (+995...)" />
+      <button class="btn btn-blue" onclick="findDriver()">მოძებნა</button>
+      <div class="small">მაგ: +995571222667</div>
+    </div>
 
-    <input type="number" id="amount" placeholder="გადარიცხვის თანხა">
-    <button onclick="transfer()">გადარიცხვა</button>
+    <!-- 2) მძღოლის ბლოკი -->
+    <div id="driverBlock" style="display:none;">
+      <div class="card">
+        <div class="row"><span>სახელი:</span><b id="dName"></b></div>
+        <div class="row"><span>გვარი:</span><b id="dSurname"></b></div>
+        <div class="row"><span>ტელეფონი:</span><b id="dPhone"></b></div>
 
-    <p id="result"></p>
-</div>
+        <div class="balance"><span id="dBalance"></span> ₾</div>
+        <div class="small" style="text-align:center;">უნაღდო ანგარიშსწორებების ბალანსი</div>
+      </div>
+
+      <div class="card">
+        <div class="fee">საკომისიო: <b>0.50 ₾</b> (ყოველ ტრანზაქციაზე)</div>
+
+        <input id="amount" type="number" step="0.01" placeholder="გადარიცხვის თანხა (მაგ: 100)" />
+        <button class="btn btn-blue" onclick="transfer()">გადარიცხვა</button>
+
+        <button class="btn btn-gray" onclick="resetDriver()">სხვა მძღოლი</button>
+      </div>
+    </div>
+
+  </div>
 
 <script>
-// 👇 დროებითი მონაცემები (მონაცემთა ბაზის იმიტაცია)
-const drivers = {
-    "+995571222667": {
-        name: "Aleksandre",
-        surname: "Nikolashvili",
-        balance: 130.00
+  // === დროებითი "ბაზა" (mock) ===
+  // მერე API-ზე გადავიტანთ.
+  const DRIVERS = {
+    "+995571222667": { firstName:"Aleksandre", lastName:"Nikolashvili", phone:"+995571222667", balance:130.00 },
+    "+9955XX000000": { firstName:"Test", lastName:"Driver", phone:"+9955XX000000", balance:50.00 }
+  };
+
+  const FEE = 0.50;
+  let currentDriver = null;
+
+  function findDriver(){
+    const phone = document.getElementById("searchPhone").value.trim();
+
+    if(!phone){
+      alert("შეიყვანე ტელეფონის ნომერი");
+      return;
     }
-};
 
-function findDriver() {
-    const phone = document.getElementById("phone").value;
-    const driver = drivers[phone];
-
-    if (!driver) {
-        alert("მძღოლი ვერ მოიძებნა");
-        return;
+    const driver = DRIVERS[phone];
+    if(!driver){
+      alert("მძღოლი ვერ მოიძებნა");
+      return;
     }
 
-    document.getElementById("name").innerText = driver.name;
-    document.getElementById("surname").innerText = driver.surname;
-    document.getElementById("phoneView").innerText = phone;
-    document.getElementById("balance").innerText = driver.balance.toFixed(2);
+    currentDriver = driver;
+    showDriver();
+  }
 
-    document.getElementById("driverCard").style.display = "block";
-}
+  function showDriver(){
+    document.getElementById("searchBlock").style.display = "none";
+    document.getElementById("driverBlock").style.display = "block";
 
-function transfer() {
-    const phone = document.getElementById("phone").value;
+    document.getElementById("dName").innerText = currentDriver.firstName;
+    document.getElementById("dSurname").innerText = currentDriver.lastName;
+    document.getElementById("dPhone").innerText = currentDriver.phone;
+    document.getElementById("dBalance").innerText = currentDriver.balance.toFixed(2);
+
+    document.getElementById("amount").value = "";
+  }
+
+  function transfer(){
     const amount = parseFloat(document.getElementById("amount").value);
 
-    if (isNaN(amount) || amount <= 0) {
-        alert("შეიყვანე სწორი თანხა");
-        return;
+    if(!currentDriver){
+      alert("ჯერ მძღოლი მოძებნე");
+      return;
+    }
+    if(!amount || amount <= 0){
+      alert("შეიყვანე თანხა სწორად");
+      return;
     }
 
-    const commission = 0.50;
-    const finalAmount = amount - commission;
-
-    if (finalAmount <= 0) {
-        alert("თანხა საკომისიოზე ნაკლებია");
-        return;
+    const total = amount + FEE;
+    if(total > currentDriver.balance){
+      alert("არასაკმარისი ბალანსი");
+      return;
     }
 
-    drivers[phone].balance -= amount;
+    // ბალანსის დაკლება (თითქოს იანდექსიდან მოაკლდა)
+    currentDriver.balance = +(currentDriver.balance - total).toFixed(2);
 
-    document.getElementById("balance").innerText =
-        drivers[phone].balance.toFixed(2);
+    document.getElementById("dBalance").innerText = currentDriver.balance.toFixed(2);
 
-    document.getElementById("result").innerText =
-        "ჩაერიცხა: " + finalAmount.toFixed(2) + " ₾ (საკომისიო 0.50₾)";
-}
+    alert(`მძღოლს დაერიცხა ${amount.toFixed(2)} ₾ | საკომისიო 0.50 ₾ | ჩამოიჭრა: ${total.toFixed(2)} ₾`);
+  }
+
+  function resetDriver(){
+    currentDriver = null;
+    document.getElementById("driverBlock").style.display = "none";
+    document.getElementById("searchBlock").style.display = "block";
+    document.getElementById("searchPhone").value = "";
+    document.getElementById("amount").value = "";
+  }
 </script>
 
 </body>
