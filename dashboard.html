@@ -2,38 +2,55 @@
 <html lang="ka">
 <head>
 <meta charset="UTF-8">
-<title>AIWtaxi – მძღოლის კაბინეტი</title>
+<title>AIWtaxi Dashboard</title>
 
 <style>
-    body {
-        background: black;
-        color: white;
-        font-family: Arial, sans-serif;
-        text-align: center;
-        padding: 25px;
-    }
-    h1 {
-        color: #FFD000;
-        font-size: 30px;
-        margin-bottom: 30px;
-    }
-    .balance {
-        font-size: 55px;
-        color: #FFD000;
-        margin-top: 10px;
-        margin-bottom: 25px;
-    }
-    button {
-        background: #5AB0FF;
-        border: none;
-        padding: 18px 40px;
-        border-radius: 100px;
-        font-size: 20px;
-        font-weight: bold;
-        cursor: pointer;
-        color: white;
-        margin-top: 25px;
-    }
+body {
+    margin: 0;
+    background: #000;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 30px;
+}
+
+h1 {
+    color: #ffcc00;
+}
+
+input {
+    width: 90%;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: none;
+    font-size: 18px;
+}
+
+button {
+    width: 90%;
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 50px;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    background: #4da6ff;
+    color: #000;
+}
+
+.card {
+    margin-top: 30px;
+    padding: 20px;
+    border-radius: 15px;
+    background: #111;
+    display: none;
+}
+
+.balance {
+    font-size: 32px;
+    color: #ffcc00;
+}
 </style>
 </head>
 
@@ -41,100 +58,73 @@
 
 <h1>AIWtaxi – მძღოლის კაბინეტი</h1>
 
-<h2>თქვენი ტელეფონი:</h2>
-<div id="driverPhone" style="font-size:22px; margin-bottom:20px;"></div>
+<input type="text" id="phone" placeholder="შეიყვანე ტელეფონის ნომერი">
+<button onclick="findDriver()">მოძებნა</button>
 
-<h2>თქვენი ბალანსი:</h2>
-<div id="balance" class="balance">იტვირთება…</div>
+<div class="card" id="driverCard">
+    <p><b>სახელი:</b> <span id="name"></span></p>
+    <p><b>გვარი:</b> <span id="surname"></span></p>
+    <p><b>ტელეფონი:</b> <span id="phoneView"></span></p>
+    <p class="balance"><span id="balance"></span> ₾</p>
 
-<button onclick="alert('გადარიცხვის ფანჯარა მზადდება')">
-    გადარიცხვა
-</button>
+    <input type="number" id="amount" placeholder="გადარიცხვის თანხა">
+    <button onclick="transfer()">გადარიცხვა</button>
+
+    <p id="result"></p>
+</div>
 
 <script>
+// 👇 დროებითი მონაცემები (მონაცემთა ბაზის იმიტაცია)
+const drivers = {
+    "+995571222667": {
+        name: "Aleksandre",
+        surname: "Nikolashvili",
+        balance: 130.00
+    }
+};
 
-// აქ ჩასვამ შენს მიერ მიღებულ დახვეწილ გასაღებებს:
-const API_KEY = "tlQGatuaTrXFLehrGJOxzcbumRtmyNaKjdvH";
-const PARK_ID = "taxi/park/3570960d7c3f4a4eb189bed587fc54d7";
+function findDriver() {
+    const phone = document.getElementById("phone").value;
+    const driver = drivers[phone];
 
-const phone = localStorage.getItem("driver_phone");
-document.getElementById("driverPhone").innerText = phone;
-
-
-// 🔥 1) მძღოლის ძებნა ტელეფონის მიხედვით
-async function getDriverId() {
-    const url = `https://fleet-api.taxi.yandex.net/v1/parks/driver-profiles/list`;
-
-    const body = {
-        query: {
-            park: { id: PARK_ID.replace("taxi/park/", "") },
-            text: phone
-        },
-        limit: 1
-    };
-
-    const res = await fetch(url, {
-        method: "POST",
-        headers: {
-            "X-Client-ID": PARK_ID,
-            "X-API-Key": API_KEY,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-    });
-
-    const data = await res.json();
-
-    if (!data.driver_profiles || data.driver_profiles.length === 0) {
-        document.getElementById("balance").innerText = "მძღოლი ვერ მოიძებნა";
-        throw "Driver not found";
+    if (!driver) {
+        alert("მძღოლი ვერ მოიძებნა");
+        return;
     }
 
-    return data.driver_profiles[0].driver_profile.id;
+    document.getElementById("name").innerText = driver.name;
+    document.getElementById("surname").innerText = driver.surname;
+    document.getElementById("phoneView").innerText = phone;
+    document.getElementById("balance").innerText = driver.balance.toFixed(2);
+
+    document.getElementById("driverCard").style.display = "block";
 }
 
+function transfer() {
+    const phone = document.getElementById("phone").value;
+    const amount = parseFloat(document.getElementById("amount").value);
 
-// 🔥 2) მძღოლის ბალანსის ამოღება
-async function getDriverBalance(driverId) {
-    const url = `https://fleet-api.taxi.yandex.net/v2/parks/driver-profiles/balances/list`;
-
-    const body = {
-        query: {
-            park: { id: PARK_ID.replace("taxi/park/", "") },
-            driver_profile: { id: [driverId] }
-        }
-    };
-
-    const res = await fetch(url, {
-        method: "POST",
-        headers: {
-            "X-Client-ID": PARK_ID,
-            "X-API-Key": API_KEY,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-    });
-
-    const data = await res.json();
-
-    const b = data.accounts[0].balance;
-    return b;
-}
-
-
-// 🚀 3) გაშვება
-(async () => {
-    try {
-        const driverId = await getDriverId();
-        const balance = await getDriverBalance(driverId);
-
-        document.getElementById("balance").innerText = balance + " ₾";
-
-    } catch (e) {
-        console.log(e);
+    if (isNaN(amount) || amount <= 0) {
+        alert("შეიყვანე სწორი თანხა");
+        return;
     }
-})();
 
+    const commission = 0.50;
+    const finalAmount = amount - commission;
+
+    if (finalAmount <= 0) {
+        alert("თანხა საკომისიოზე ნაკლებია");
+        return;
+    }
+
+    drivers[phone].balance -= amount;
+
+    document.getElementById("balance").innerText =
+        drivers[phone].balance.toFixed(2);
+
+    document.getElementById("result").innerText =
+        "ჩაერიცხა: " + finalAmount.toFixed(2) + " ₾ (საკომისიო 0.50₾)";
+}
 </script>
 
 </body>
