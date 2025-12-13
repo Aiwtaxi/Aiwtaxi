@@ -4,50 +4,34 @@ const app = express();
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
-const YANDEX_TOKEN = process.env.YANDEX_TOKEN;
 
-// --- health check ---
+// health check
 app.get('/', (req, res) => {
-  res.json({
-    status: 'ok',
-    hasToken: !!YANDEX_TOKEN
+  res.json({ status: 'ok' });
+});
+
+// DRIVER BY PHONE (TEST VERSION – NO YANDEX)
+app.get('/driver-by-phone', (req, res) => {
+  let { phone } = req.query;
+
+  if (!phone) {
+    return res.status(400).json({ error: 'phone is required' });
+  }
+
+  // წმენდა
+  phone = phone.replace(/\s+/g, '').replace('+', '');
+
+  // MOCK პასუხი (დროებით)
+  return res.json({
+    success: true,
+    driver: {
+      phone,
+      name: 'Test Driver',
+      balance: 105.00
+    }
   });
 });
 
-// --- get driver by phone ---
-app.get('/driver-by-phone', async (req, res) => {
-  try {
-    const phone = req.query.phone;
-
-    if (!phone) {
-      return res.status(400).json({ error: 'phone is required' });
-    }
-
-    if (!YANDEX_TOKEN) {
-      return res.status(500).json({ error: 'YANDEX_TOKEN missing' });
-    }
-
-    const response = await fetch(
-      `https://fleet.yandex.ru/api/v1/drivers?phone=${encodeURIComponent(phone)}`,
-      {
-        headers: {
-          Authorization: `Bearer ${YANDEX_TOKEN}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-
-    const data = await response.json();
-    res.json(data);
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      error: err.message
-    });
-  }
-});
-
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log('Server running on port', PORT);
 });
