@@ -1,37 +1,63 @@
 import express from "express";
+import fetch from "node-fetch";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Root endpoint
+const YANDEX_TOKEN = process.env.YANDEX_TOKEN;
+const PARK_ID = "taxi/park/3570960d7c3f4a4eb189bed587fc54d7"; // შენი park_id
+
 app.get("/", (req, res) => {
-  res.send("aiw taxi backend running");
+  res.json({ status: "aiw taxi backend running" });
 });
 
-// Health check
-app.get("/health", (req, res) => {
-  res.json({
-    status: "ok",
-    hasToken: Boolean(process.env.YANDEX_TOKEN),
-  });
-});
+/**
+ * მძღოლის მოძებნა ტელეფონის ნომრით
+ * მაგალითი:
+ * /driver-by-phone?phone=+995571222667
+ */
+app.get("/driver-by-phone", async (req, res) => {
+  const phone = req.query.phone;
 
-// Test endpoint for Yandex token
-app.get("/api/yandex/test", (req, res) => {
-  if (!process.env.YANDEX_TOKEN) {
-    return res.json({
-      ok: false,
-      error: "YANDEX_TOKEN missing",
-    });
+  if (!phone) {
+    return res.status(400).json({ error: "phone is required" });
   }
 
-  res.json({
-    ok: true,
-    message: "Yandex token detected",
-  });
+  try {
+    const response = await fetch(
+      "https://fleet-api.taxi.yandex.net/v1/parks/driver-profiles/list",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${YANDEX_TOKEN}`,
+        },
+        body: JSON.stringify({
+          park_id: PARK_ID,
+          fields: {
+            driver_profile: [
+              "id",
+              "first_name",
+              "last_name",
+              "phones"
+            ],
+          },
+          query: {
+            phones: [phone],
+          },
+          limit: 1,
+        }),
+      }
+    );
+
+    const data = await response.json();
+    res.json(data);
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// Start server
 app.listen(PORT, () => {
-  console.log(`🚕 AIW Taxi backend running on port ${PORT}`);
+  console.log("Server running on port", PORT);
 });
