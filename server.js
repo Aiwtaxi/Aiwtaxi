@@ -4,15 +4,18 @@ import fetch from 'node-fetch';
 const app = express();
 app.use(express.json());
 
-// health check
+const PORT = process.env.PORT || 3000;
+const YANDEX_TOKEN = process.env.YANDEX_TOKEN;
+
+// --- health check ---
 app.get('/', (req, res) => {
   res.json({
     status: 'ok',
-    hasToken: !!process.env.YANDEX_TOKEN,
+    hasToken: !!YANDEX_TOKEN
   });
 });
 
-// get driver by phone
+// --- get driver by phone ---
 app.get('/driver-by-phone', async (req, res) => {
   const phone = req.query.phone;
 
@@ -20,7 +23,7 @@ app.get('/driver-by-phone', async (req, res) => {
     return res.status(400).json({ error: 'phone is required' });
   }
 
-  if (!process.env.YANDEX_TOKEN) {
+  if (!YANDEX_TOKEN) {
     return res.status(500).json({ error: 'YANDEX_TOKEN not set' });
   }
 
@@ -31,7 +34,7 @@ app.get('/driver-by-phone', async (req, res) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-API-Key': process.env.YANDEX_TOKEN,
+          'X-API-Key': YANDEX_TOKEN,
         },
         body: JSON.stringify({
           query: {
@@ -48,8 +51,6 @@ app.get('/driver-by-phone', async (req, res) => {
   }
 });
 
-// port
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`AIW Taxi backend running on port ${PORT}`);
 });
