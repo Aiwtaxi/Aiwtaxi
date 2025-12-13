@@ -1,5 +1,5 @@
-import express from "express";
-import cors from "cors";
+const express = require("express");
+const cors = require("cors");
 
 const app = express();
 app.use(cors());
@@ -10,7 +10,7 @@ app.get("/", (req, res) => {
   res.json({ status: "ok", hasToken: true });
 });
 
-// DRIVER BY PHONE ENDPOINT
+// DRIVER BY PHONE
 app.get("/driver-by-phone", (req, res) => {
   const phone = req.query.phone;
 
@@ -21,13 +21,12 @@ app.get("/driver-by-phone", (req, res) => {
     });
   }
 
-  // MOCK DATA (შემდეგში ჩაანაცვლებ DB-ით)
   if (phone === "+995598904878") {
     return res.json({
       success: true,
       driver: {
         name: "Aleksandre Nikolashvili",
-        phone: phone,
+        phone,
         balance: 105,
         status: "active",
       },
