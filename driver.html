@@ -1,1 +1,43 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8">
+  <title>მძღოლი</title>
+</head>
+<body>
 
+  <h2>მძღოლის მოძებნა ტელეფონით</h2>
+
+  <input
+    type="text"
+    id="phone"
+    placeholder="+9955XXXXXXXX"
+  />
+
+  <button onclick="findDriver()">ძებნა</button>
+
+  <pre id="result"></pre>
+
+  <script>
+    async function findDriver() {
+      const phone = document.getElementById('phone').value;
+      const result = document.getElementById('result');
+
+      result.textContent = 'იტვირთება...';
+
+      try {
+        const res = await fetch(
+          'https://aiwtaxi-backend.onrender.com/driver-by-phone?phone=' + encodeURIComponent(phone)
+        );
+
+        const data = await res.json();
+        result.textContent = JSON.stringify(data, null, 2);
+
+      } catch (err) {
+        result.textContent = 'შეცდომა: ' + err.message;
+      }
+    }
+  </script>
+
+</body>
+</html>
