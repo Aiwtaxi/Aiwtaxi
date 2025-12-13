@@ -1,167 +1,145 @@
 <!DOCTYPE html>
 <html lang="ka">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>AIWtaxi – მძღოლის კაბინეტი</title>
-
-<style>
-body{
-  margin:0;
-  font-family: Arial, sans-serif;
-  background:#000;
-  color:#fff;
-  text-align:center;
-}
-
-h2{ color:#f5c400; }
-
-input{
-  width:90%;
-  max-width:360px;
-  padding:14px;
-  margin:10px 0;
-  border-radius:10px;
-  border:none;
-  font-size:16px;
-}
-
-button{
-  width:90%;
-  max-width:360px;
-  padding:14px;
-  margin-top:12px;
-  border:none;
-  border-radius:25px;
-  background:#4da3ff;
-  color:#000;
-  font-size:18px;
-  font-weight:bold;
-}
-
-.card{
-  background:#111;
-  border-radius:16px;
-  padding:20px;
-  margin:20px auto;
-  width:90%;
-  max-width:400px;
-}
-</style>
+  <meta charset="UTF-8" />
+  <title>AIW Taxi – Driver Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background: #0b0b0b;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .card {
+      max-width: 420px;
+      margin: auto;
+      background: #151515;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #ffd400;
+      margin-bottom: 20px;
+    }
+    label {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0 16px 0;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 999px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .primary {
+      background: #3fa9f5;
+      color: #000;
+    }
+    .danger {
+      background: #ff4d4d;
+      color: #000;
+      margin-top: 10px;
+    }
+    .info {
+      margin: 12px 0;
+      padding: 10px;
+      background: #1f1f1f;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
-
 <body>
 
-<h2>AIWtaxi – მძღოლის კაბინეტი</h2>
+  <div class="card">
+    <h1>AIW Taxi</h1>
 
-<!-- ძებნა -->
-<div id="searchBlock">
-  <input id="searchPhone" placeholder="+9955XXXXXXXX"/>
-  <button onclick="findDriver()">მოძებნა</button>
-</div>
+    <!-- LOGIN -->
+    <div id="loginBox">
+      <label>ტელეფონის ნომერი</label>
+      <input id="phone" placeholder="+9955..." />
+      <button class="primary" onclick="login()">შესვლა</button>
+    </div>
 
-<!-- მძღოლი -->
-<div id="driverBlock" style="display:none;" class="card">
-  <p><b>სახელი:</b> <span id="firstName"></span></p>
-  <p><b>გვარი:</b> <span id="lastName"></span></p>
-  <p><b>ტელეფონი:</b> <span id="phone"></span></p>
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="hidden">
+      <div class="info"><b>მძღოლი:</b> <span id="driverName">---</span></div>
+      <div class="info"><b>ბალანსი:</b> <span id="balance">0.00</span> ₾</div>
 
-  <h3 style="color:#f5c400;">
-    ბალანსი: <span id="balance"></span> ₾
-  </h3>
+      <label>გადარიცხვის თანხა</label>
+      <input id="amount" type="number" placeholder="მაგ: 10" />
 
-  <input id="amount" type="number" placeholder="გადარიცხვის თანხა ₾"/>
-  <button onclick="transfer()">გადარიცხვა</button>
+      <div class="info">
+        საკომისიო: <b>0.50 ₾</b><br>
+        ჩარიცხდება: <b><span id="net">0.00</span> ₾</b>
+      </div>
 
-  <p id="result" style="margin-top:10px;"></p>
+      <button class="primary" onclick="calculate()">დათვლა</button>
+      <button class="danger" onclick="withdraw()">გადარიცხვა</button>
+    </div>
+  </div>
 
-  <button style="background:#666;margin-top:20px;" onclick="resetDriver()">
-    სხვა მძღოლი
-  </button>
-</div>
+  <script>
+    // დროებითი ტესტური მონაცემი (backend-ის გარეშე)
+    const TEST_DRIVER = {
+      name: "Test Driver",
+      balance: 150.75
+    };
 
-<script>
-// --- ტესტური მონაცემები (შემდეგ API-თ ჩაანაცვლებ) ---
-const DRIVERS = {
-  "+995571222667":{
-    firstName:"Aleksandre",
-    lastName:"Nikolashvili",
-    balance:130
-  }
-};
+    function login() {
+      const phone = document.getElementById("phone").value.trim();
+      if (!phone) {
+        alert("ჩაწერე ტელეფონის ნომერი");
+        return;
+      }
 
-let currentDriver = null;
+      // აქ მერე იქნება backend fetch
+      document.getElementById("driverName").innerText = TEST_DRIVER.name;
+      document.getElementById("balance").innerText = TEST_DRIVER.balance.toFixed(2);
 
-// --- ძებნა ---
-function findDriver(){
-  const phoneInput = document.getElementById("searchPhone");
-  const phone = phoneInput.value.trim();
+      document.getElementById("loginBox").classList.add("hidden");
+      document.getElementById("dashboard").classList.remove("hidden");
+    }
 
-  if(!phone){
-    alert("შეიყვანე ნომერი");
-    return;
-  }
+    function calculate() {
+      const amount = parseFloat(document.getElementById("amount").value || 0);
+      if (amount <= 0) {
+        alert("შეიყვანე თანხა");
+        return;
+      }
+      const net = amount - 0.5;
+      document.getElementById("net").innerText = net.toFixed(2);
+    }
 
-  const driver = DRIVERS[phone];
-  if(!driver){
-    alert("მძღოლი ვერ მოიძებნა");
-    return;
-  }
-
-  currentDriver = driver;
-
-  document.getElementById("firstName").innerText = driver.firstName;
-  document.getElementById("lastName").innerText = driver.lastName;
-  document.getElementById("phone").innerText = phone;
-  document.getElementById("balance").innerText = driver.balance.toFixed(2);
-
-  document.getElementById("searchBlock").style.display = "none";
-  document.getElementById("driverBlock").style.display = "block";
-
-  // ნომერი იკეტება – მეორედ აღარ გთხოვს
-  phoneInput.disabled = true;
-}
-
-// --- გადარიცხვა ---
-function transfer(){
-  const amount = parseFloat(document.getElementById("amount").value);
-  if(!amount || amount <= 0){
-    alert("შეიყვანე თანხა");
-    return;
-  }
-
-  const fee = 0.5;
-  const total = amount + fee;
-
-  if(currentDriver.balance < total){
-    alert("არასაკმარისი ბალანსი");
-    return;
-  }
-
-  currentDriver.balance -= total;
-  document.getElementById("balance").innerText =
-    currentDriver.balance.toFixed(2);
-
-  document.getElementById("result").innerText =
-    `დაერიცხა ${amount.toFixed(2)} ₾ (საკომისიო 0.50 ₾)`;
-
-  document.getElementById("amount").value = "";
-}
-
-// --- reset ---
-function resetDriver(){
-  currentDriver = null;
-
-  document.getElementById("driverBlock").style.display = "none";
-  document.getElementById("searchBlock").style.display = "block";
-
-  const phoneInput = document.getElementById("searchPhone");
-  phoneInput.value = "";
-  phoneInput.disabled = false;
-
-  document.getElementById("result").innerText = "";
-}
-</script>
+    function withdraw() {
+      const amount = parseFloat(document.getElementById("amount").value || 0);
+      if (amount <= 0) {
+        alert("შეიყვანე თანხა");
+        return;
+      }
+      alert(
+        "ტესტი:\n" +
+        "ჩამოიჭრება: " + (amount + 0.5).toFixed(2) + " ₾\n" +
+        "მძღოლს ჩაერიცხება: " + (amount).toFixed(2) + " ₾"
+      );
+    }
+  </script>
 
 </body>
 </html>
