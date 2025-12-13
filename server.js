@@ -1,63 +1,55 @@
-import express from "express";
-import fetch from "node-fetch";
+import express from 'express';
+import fetch from 'node-fetch';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+app.use(express.json());
 
-const YANDEX_TOKEN = process.env.YANDEX_TOKEN;
-const PARK_ID = "taxi/park/3570960d7c3f4a4eb189bed587fc54d7"; // შენი park_id
-
-app.get("/", (req, res) => {
-  res.json({ status: "aiw taxi backend running" });
+// health check
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    hasToken: !!process.env.YANDEX_TOKEN,
+  });
 });
 
-/**
- * მძღოლის მოძებნა ტელეფონის ნომრით
- * მაგალითი:
- * /driver-by-phone?phone=+995571222667
- */
-app.get("/driver-by-phone", async (req, res) => {
+// get driver by phone
+app.get('/driver-by-phone', async (req, res) => {
   const phone = req.query.phone;
 
   if (!phone) {
-    return res.status(400).json({ error: "phone is required" });
+    return res.status(400).json({ error: 'phone is required' });
+  }
+
+  if (!process.env.YANDEX_TOKEN) {
+    return res.status(500).json({ error: 'YANDEX_TOKEN not set' });
   }
 
   try {
     const response = await fetch(
-      "https://fleet-api.taxi.yandex.net/v1/parks/driver-profiles/list",
+      'https://fleet-api.taxi.yandex.net/v1/parks/driver-profiles/list',
       {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${YANDEX_TOKEN}`,
+          'Content-Type': 'application/json',
+          'X-API-Key': process.env.YANDEX_TOKEN,
         },
         body: JSON.stringify({
-          park_id: PARK_ID,
-          fields: {
-            driver_profile: [
-              "id",
-              "first_name",
-              "last_name",
-              "phones"
-            ],
-          },
           query: {
             phones: [phone],
           },
-          limit: 1,
         }),
       }
     );
 
     const data = await response.json();
     res.json(data);
-
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
+// port
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
+  console.log(`Server running on port ${PORT}`);
 });
