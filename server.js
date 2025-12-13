@@ -1,45 +1,44 @@
-const express = require("express");
-const cors = require("cors");
+import express from "express";
+import cors from "cors";
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+
 app.use(cors());
 app.use(express.json());
 
-// TEST ENDPOINT
+/**
+ * TEST endpoint
+ */
 app.get("/", (req, res) => {
-  res.json({ status: "ok", hasToken: true });
+  res.json({ status: "ok", message: "Backend is running" });
 });
 
-// DRIVER BY PHONE
+/**
+ * DRIVER BY PHONE
+ * URL: /driver-by-phone?phone=+9955...
+ */
 app.get("/driver-by-phone", (req, res) => {
-  const phone = req.query.phone;
+  const { phone } = req.query;
 
   if (!phone) {
     return res.status(400).json({
-      success: false,
-      error: "phone is required",
+      error: "Phone parameter is required",
     });
   }
 
-  if (phone === "+995598904878") {
-    return res.json({
-      success: true,
-      driver: {
-        name: "Aleksandre Nikolashvili",
-        phone,
-        balance: 105,
-        status: "active",
-      },
-    });
-  }
-
+  // დროებითი პასუხი (ტესტისთვის)
   return res.json({
-    success: false,
-    message: "Driver not found",
+    status: "ok",
+    phone,
+    driver: {
+      name: "Test Driver",
+      balance: 105,
+      active: true,
+    },
   });
 });
 
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Server running on port", PORT);
 });
