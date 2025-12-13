@@ -1,54 +1,27 @@
-<!DOCTYPE html>
-<html lang="ka">
-<head>
-  <meta charset="UTF-8" />
-  <title>მძღოლის მოძებნა</title>
-</head>
-<body>
+<script>
+async function searchDriver() {
+  const phone = document.getElementById('phone').value;
+  const result = document.getElementById('result');
 
-  <h2>მძღოლის მოძებნა ტელეფონით</h2>
+  result.innerText = 'ძებნა...';
 
-  <input
-    type="text"
-    id="phone"
-    placeholder="+9955XXXXXXXX"
-    style="width:200px"
-  />
+  try {
+    const response = await fetch(
+      `https://aiwtaxi-backend.onrender.com/driver-by-phone?phone=${encodeURIComponent(phone)}`
+    );
 
-  <button onclick="findDriver()">ძებნა</button>
+    const text = await response.text();
 
-  <pre id="result"></pre>
-
-  <script>
-    async function findDriver() {
-      const phone = document.getElementById('phone').value.trim();
-      const result = document.getElementById('result');
-
-      if (!phone) {
-        result.innerText = 'შეიყვანე ტელეფონი';
-        return;
-      }
-
-      result.innerText = 'იტვირთება...';
-
-      try {
-        const response = await fetch(
-          'https://aiwtaxi-backend.onrender.com/driver-by-phone?phone=' + encodeURIComponent(phone)
-        );
-
-        if (!response.ok) {
-          const text = await response.text();
-          throw new Error(text);
-        }
-
-        const data = await response.json();
-        result.innerText = JSON.stringify(data, null, 2);
-
-      } catch (err) {
-        result.innerText = 'შეცდომა: ' + err.message;
-      }
+    // თუ JSON არაა — მაინც ვაჩვენებთ
+    try {
+      const json = JSON.parse(text);
+      result.innerText = JSON.stringify(json, null, 2);
+    } catch {
+      result.innerText = text;
     }
-  </script>
 
-</body>
-</html>
+  } catch (err) {
+    result.innerText = 'Failed to fetch';
+  }
+}
+</script>
