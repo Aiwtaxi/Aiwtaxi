@@ -1,27 +1,38 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <title>მძღოლის მოძებნა</title>
+</head>
+<body>
+
+<h2>მძღოლის მოძებნა ტელეფონით</h2>
+
+<input id="phone" placeholder="+995598904878" />
+<button onclick="searchDriver()">ძებნა</button>
+
+<pre id="result"></pre>
+
 <script>
 async function searchDriver() {
   const phone = document.getElementById('phone').value;
   const result = document.getElementById('result');
 
-  result.innerText = 'ძებნა...';
+  result.textContent = 'ძებნა...';
 
   try {
     const response = await fetch(
       `https://aiwtaxi-backend.onrender.com/driver-by-phone?phone=${encodeURIComponent(phone)}`
     );
 
-    const text = await response.text();
-
-    // თუ JSON არაა — მაინც ვაჩვენებთ
-    try {
-      const json = JSON.parse(text);
-      result.innerText = JSON.stringify(json, null, 2);
-    } catch {
-      result.innerText = text;
-    }
+    const data = await response.json();
+    result.textContent = JSON.stringify(data, null, 2);
 
   } catch (err) {
-    result.innerText = 'Failed to fetch';
+    result.textContent = 'Backend error';
   }
 }
 </script>
+
+</body>
+</html>
