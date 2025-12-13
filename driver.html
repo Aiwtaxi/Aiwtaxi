@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ka">
 <head>
-  <meta charset="UTF-8">
-  <title>მძღოლი</title>
+  <meta charset="UTF-8" />
+  <title>მძღოლის მოძებნა</title>
 </head>
 <body>
 
@@ -12,6 +12,7 @@
     type="text"
     id="phone"
     placeholder="+9955XXXXXXXX"
+    style="width:200px"
   />
 
   <button onclick="findDriver()">ძებნა</button>
@@ -20,21 +21,31 @@
 
   <script>
     async function findDriver() {
-      const phone = document.getElementById('phone').value;
+      const phone = document.getElementById('phone').value.trim();
       const result = document.getElementById('result');
 
-      result.textContent = 'იტვირთება...';
+      if (!phone) {
+        result.innerText = 'შეიყვანე ტელეფონი';
+        return;
+      }
+
+      result.innerText = 'იტვირთება...';
 
       try {
-        const res = await fetch(
+        const response = await fetch(
           'https://aiwtaxi-backend.onrender.com/driver-by-phone?phone=' + encodeURIComponent(phone)
         );
 
-        const data = await res.json();
-        result.textContent = JSON.stringify(data, null, 2);
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(text);
+        }
+
+        const data = await response.json();
+        result.innerText = JSON.stringify(data, null, 2);
 
       } catch (err) {
-        result.textContent = 'შეცდომა: ' + err.message;
+        result.innerText = 'შეცდომა: ' + err.message;
       }
     }
   </script>
