@@ -30,7 +30,7 @@ app.get("/driver-by-phone", async (req, res) => {
 
   try {
     const response = await fetch(
-      "https://fleet-api.taxi.yandex.net/v1/parks/contractors/list",
+      const url = "https://fleet-api.taxi.yandex.net/v1/parks/contractors";
       {
         method: "POST",
         headers: {
