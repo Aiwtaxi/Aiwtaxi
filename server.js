@@ -1,4 +1,4 @@
-const express = require("express");
+wconst express = require("express");
 const cors = require("cors");
 const fetch = require("node-fetch");
 
@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 3000;
 const YANDEX_TOKEN = process.env.YANDEX_TOKEN;
 const PARK_ID = process.env.PARK_ID;
 
+// health check
 app.get("/", (req, res) => {
   res.json({
     status: "ok",
@@ -21,7 +22,7 @@ app.get("/", (req, res) => {
 function normalizePhone(p = "") {
   let s = String(p).trim().replace(/\s+/g, "");
   if (s.startsWith("995")) s = "+" + s;
-  if (!s.startsWith("+")) s = "+" + s;
+  if (!s.startsWith("+") && s.length) s = "+" + s;
   return s;
 }
 
@@ -33,7 +34,7 @@ app.get("/driver-by-phone", async (req, res) => {
     if (!PARK_ID) return res.status(500).json({ error: "PARK_ID missing" });
 
     const response = await fetch(
-      "https://fleet-api.taxi.yandex.net/v2/parks/contractors",
+      "https://fleet-api.taxi.yandex.ru/v2/parks/contractors",
       {
         method: "POST",
         headers: {
@@ -77,7 +78,7 @@ app.get("/driver-by-phone", async (req, res) => {
       found: true,
       phone,
       contractor_id: contractor.id || null,
-      name: contractor.name || null,
+      name: contractor.name || contractor.person?.name || null,
       balance:
         contractor.balance ??
         contractor?.accounts?.[0]?.balance ??
