@@ -10,19 +10,18 @@ const PORT = process.env.PORT || 3000;
 const YANDEX_TOKEN = process.env.YANDEX_TOKEN;
 const PARK_ID = process.env.PARK_ID;
 
-// health check
 app.get("/", (req, res) => {
   res.json({
     status: "ok",
     hasToken: !!YANDEX_TOKEN,
-    hasParkId: !!PARK_ID,
+    hasParkId: !!PARK_ID
   });
 });
 
 function normalizePhone(p = "") {
   let s = String(p).trim().replace(/\s+/g, "");
   if (s.startsWith("995")) s = "+" + s;
-  if (!s.startsWith("+") && s.length) s = "+" + s;
+  if (!s.startsWith("+")) s = "+" + s;
   return s;
 }
 
@@ -34,20 +33,20 @@ app.get("/driver-by-phone", async (req, res) => {
     if (!PARK_ID) return res.status(500).json({ error: "PARK_ID missing" });
 
     const response = await fetch(
-      "https://fleet-api.taxi.yandex.net/v1/parks/contractors",
+      "https://fleet-api.taxi.yandex.net/v2/parks/contractors",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-API-Key": YANDEX_TOKEN,
+          "X-API-Key": YANDEX_TOKEN
         },
         body: JSON.stringify({
           park_id: PARK_ID,
           filters: {
-            phones: [phone],
+            phones: [phone]
           },
-          limit: 1,
-        }),
+          limit: 1
+        })
       }
     );
 
@@ -63,14 +62,11 @@ app.get("/driver-by-phone", async (req, res) => {
       return res.status(response.status).json({
         error: "Yandex API error",
         status: response.status,
-        raw: data,
+        raw: data
       });
     }
 
-    const contractor =
-      data?.contractors?.[0] ||
-      data?.result?.contractors?.[0] ||
-      null;
+    const contractor = data?.contractors?.[0] || null;
 
     if (!contractor) {
       return res.json({ success: true, found: false, phone });
@@ -80,12 +76,12 @@ app.get("/driver-by-phone", async (req, res) => {
       success: true,
       found: true,
       phone,
-      contractor_id: contractor.id || contractor.contractor_id || null,
-      name: contractor.name || contractor.person?.name || null,
+      contractor_id: contractor.id || null,
+      name: contractor.name || null,
       balance:
         contractor.balance ??
         contractor?.accounts?.[0]?.balance ??
-        null,
+        null
     });
   } catch (e) {
     return res.status(500).json({ error: "server error", details: String(e) });
