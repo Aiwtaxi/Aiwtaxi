@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 3000;
 const YANDEX_TOKEN = process.env.YANDEX_TOKEN;
 const PARK_ID = process.env.PARK_ID;
 
+// health check
 app.get("/", (req, res) => {
   res.json({
     status: "ok",
@@ -18,21 +19,22 @@ app.get("/", (req, res) => {
   });
 });
 
-function normPhone(p = "") {
+function normalizePhone(p = "") {
   let s = String(p).trim().replace(/\s+/g, "");
   if (s.startsWith("995")) s = "+" + s;
+  if (!s.startsWith("+") && s.length) s = "+" + s;
   return s;
 }
 
 app.get("/driver-by-phone", async (req, res) => {
-  const phone = normPhone(req.query.phone || "");
-  if (!phone) return res.status(400).json({ error: "phone is required" });
-  if (!YANDEX_TOKEN) return res.status(500).json({ error: "YANDEX_TOKEN missing" });
-  if (!PARK_ID) return res.status(500).json({ error: "PARK_ID missing" });
-
   try {
-    const r = await fetch(
-      "https://fleet-api.taxi.yandex.net/v1/parks/contractors/list",
+    const phone = normalizePhone(req.query.phone || "");
+    if (!phone) return res.status(400).json({ error: "phone is required" });
+    if (!YANDEX_TOKEN) return res.status(500).json({ error: "YANDEX_TOKEN missing" });
+    if (!PARK_ID) return res.status(500).json({ error: "PARK_ID missing" });
+
+    const response = await fetch(
+      "https://fleet-api.taxi.yandex.net/v1/parks/contractors",
       {
         method: "POST",
         headers: {
@@ -41,43 +43,55 @@ app.get("/driver-by-phone", async (req, res) => {
         },
         body: JSON.stringify({
           park_id: PARK_ID,
-          query: { phones: [phone] },
+          filters: {
+            phones: [phone],
+          },
           limit: 1,
         }),
       }
     );
 
-    const text = await r.text();
+    const text = await response.text();
     let data;
-    try { data = JSON.parse(text); } catch {}
+    try {
+      data = JSON.parse(text);
+    } catch {
+      return res.status(500).json({ error: "Invalid JSON from Yandex", raw: text });
+    }
 
-    if (!r.ok) {
-      return res.status(r.status).json({
+    if (!response.ok) {
+      return res.status(response.status).json({
         error: "Yandex API error",
-        status: r.status,
-        raw: text,
+        status: response.status,
+        raw: data,
       });
     }
 
-    const contractor = data?.contractors?.[0];
+    const contractor =
+      data?.contractors?.[0] ||
+      data?.result?.contractors?.[0] ||
+      null;
+
     if (!contractor) {
-      return res.json({ success: true, found: false });
+      return res.json({ success: true, found: false, phone });
     }
 
-    res.json({
+    return res.json({
       success: true,
       found: true,
       phone,
-      name: contractor.name || null,
-      balance: contractor.balance || null,
-      contractor_id: contractor.id || null,
+      contractor_id: contractor.id || contractor.contractor_id || null,
+      name: contractor.name || contractor.person?.name || null,
+      balance:
+        contractor.balance ??
+        contractor?.accounts?.[0]?.balance ??
+        null,
     });
-
   } catch (e) {
-    res.status(500).json({ error: "server error", details: String(e) });
+    return res.status(500).json({ error: "server error", details: String(e) });
   }
 });
 
 app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
+  console.log("Server running on", PORT);
 });
